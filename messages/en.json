@@ -1,0 +1,11 @@
+{
+    "PWA": {
+        "appName": "AWE e.V. Portal",
+        "installDescription": "Install for a better experience, offline access, and notifications.",
+        "updateTitle": "Update Available",
+        "updateDescription": "A new version is ready. Reload to get the latest features.",
+        "installButton": "Install",
+        "updateButton": "Reload & Update",
+        "dismissButton": "Later"
+    }
+}

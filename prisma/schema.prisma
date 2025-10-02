@@ -1,0 +1,2983 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// SCHEMA FOR AWE E.V. 
+// =============================================================================
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum PageStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BlockType {
+  HERO
+  FAQ
+  CTA
+  TESTIMONIALS
+  STATS
+  GALLERY
+  TEXT_CONTENT
+  PROGRAM_CARDS
+  SUCCESS_STORIES
+  DONATION_FORM
+  VOLUNTEER_SIGNUP
+  NEWSLETTER_SIGNUP
+  PARTNER_LOGOS
+  TEAM_GRID
+  TIMELINE
+  CONTACT_FORM
+  VIDEO_EMBED
+  MAP
+  ACCORDION
+  TABS
+  DIVIDER
+}
+
+enum CtaStyle {
+  PRIMARY
+  SECONDARY
+  OUTLINE
+  TEXT
+}
+
+enum CtaSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum GalleryLayout {
+  GRID
+  MASONRY
+  CAROUSEL
+  SLIDER
+}
+
+enum TextAlign {
+  LEFT
+  CENTER
+  RIGHT
+  JUSTIFY
+}
+
+enum ColorScheme {
+  DEFAULT
+  PRIMARY
+  SECONDARY
+  ACCENT
+  LIGHT
+  DARK
+}
+
+enum Role {
+  SUPER_ADMIN
+  EXECUTIVE_DIRECTOR
+  PROGRAM_MANAGER
+  CONTENT_MANAGER
+  FINANCE_MANAGER
+  VOLUNTEER_COORDINATOR
+  BOARD_MEMBER
+  DATA_ANALYST
+  ACTIVE_VOLUNTEER
+  PROGRAM_ALUMNI
+  CORPORATE_PARTNER
+  INDIVIDUAL_MAJOR_DONOR
+  INSTITUTIONAL_PARTNER
+  PROGRAM_MENTOR
+}
+
+enum ContentStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ProgramStatus {
+  DRAFT
+  OPEN
+  FULL
+  CLOSED
+}
+
+enum EnrolmentStatus {
+  DRAFT
+  ELIGIBLE
+  INELIGIBLE
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+}
+
+enum StoryStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SkillCategory {
+  TECHNICAL
+  SOFT_SKILLS
+  LANGUAGES
+  CREATIVE
+  MANAGEMENT
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum Visibility {
+  PRIVATE
+  INTERNAL
+  PUBLIC
+}
+
+enum AssetType {
+  IMAGE
+  LOGO
+  DOCUMENT
+  VIDEO
+}
+
+enum ActivityType {
+  USER_REGISTERED
+  DONATION_RECEIVED
+  PROGRAM_COMPLETED
+  PARTNERSHIP_STARTED
+  STORY_SUBMITTED
+  VOLUNTEER_APPLIED
+}
+
+enum GrantStatus {
+  ACTIVE
+  COMPLETED
+  CLOSED
+}
+
+enum ReportStatus {
+  PENDING
+  SUBMITTED
+  REVIEWING
+  APPROVED
+}
+
+enum Channel {
+  EMAIL
+  IN_APP
+  PUSH
+  SMS
+}
+
+enum NotifStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum NotificationType {
+  USER_WELCOME
+  USER_APPLICATION_RECEIVED
+  USER_APPLICATION_APPROVED
+  USER_APPLICATION_REJECTED
+  VOLUNTEER_NEW_OPPORTUNITY
+  VOLUNTEER_SCHEDULE_REMINDER
+  VOLUNTEER_TRAINING_AVAILABLE
+  VOLUNTEER_RECOGNITION_AWARDED
+  MENTOR_NEW_REQUEST
+  MENTOR_SESSION_REMINDER
+  ALUMNI_EVENT_INVITE
+  ALUMNI_GIVE_BACK_CAMPAIGN
+  DONATION_THANK_YOU
+  DONATION_IMPACT_UPDATE
+  PARTNER_REPORT_READY
+  PARTNER_RENEWAL_REMINDER
+  BOARD_MEETING_REMINDER
+  BOARD_DOCUMENT_UPLOADED
+  BOARD_VOTE_REQUIRED
+  ADMIN_STORY_PENDING_REVIEW
+  ADMIN_VOLUNTEER_APPLICATION_RECEIVED
+  ADMIN_PARTNERSHIP_INQUIRY
+}
+
+enum OAuthProvider {
+  GOOGLE
+  FACEBOOK
+  MICROSOFT
+}
+
+enum TokenType {
+  RESET_PASSWORD
+  VERIFY_EMAIL
+  IMPERSONATE
+  TWO_FACTOR_AUTH
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  WEB
+}
+
+enum FeatureFlagKey {
+  COMMUNITY_DIRECTORY
+  MENTORSHIP_PROGRAM
+  ALUMNI_JOB_BOARD
+  PEER_TO_PEER_FUNDRAISING
+  ADVANCED_ANALYTICS
+  AI_CONTENT_RECOMMENDATIONS
+}
+
+enum PartnershipType {
+  CORPORATE
+  INSTITUTIONAL
+  COMMUNITY
+  GOVERNMENT
+  NONPROFIT
+}
+
+enum PartnershipStatus {
+  PROSPECT
+  ACTIVE
+  RENEWED
+  PAUSED
+  ENDED
+}
+
+enum VolunteerApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  INTERVIEW_SCHEDULED
+  BACKGROUND_CHECK
+  APPROVED
+  REJECTED
+  WAITLISTED
+}
+
+enum MentorshipStatus {
+  REQUESTED
+  MATCHED
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+enum DocumentType {
+  FINANCIAL_REPORT
+  ANNUAL_REPORT
+  BOARD_MINUTES
+  POLICY_DOCUMENT
+  GRANT_PROPOSAL
+  IMPACT_ASSESSMENT
+  TRAINING_MATERIAL
+  MARKETING_ASSET
+  LEGAL_DOCUMENT
+}
+
+enum FormType {
+  CONTACT
+  VOLUNTEER_APPLICATION
+  PROGRAM_APPLICATION
+  NEWSLETTER_SIGNUP
+  PARTNERSHIP_INQUIRY
+  MENTORSHIP_REQUEST
+  FEEDBACK
+  STORY_SUBMISSION
+}
+
+enum ImpactMetricType {
+  PARTICIPANTS_SERVED
+  JOBS_CREATED
+  BUSINESSES_STARTED
+  GRADUATION_RATE
+  VOLUNTEER_HOURS
+  FUNDS_RAISED
+  PARTNERSHIPS_FORMED
+}
+
+enum CommunicationTemplateType {
+  WELCOME_EMAIL
+  PROGRAM_CONFIRMATION
+  DONATION_RECEIPT
+  VOLUNTEER_CONFIRMATION
+  MENTORSHIP_MATCH
+  EVENT_REMINDER
+  NEWSLETTER
+  IMPACT_UPDATE
+}
+
+// -----------------------------
+// MODELS
+// -----------------------------
+
+// Add these new models to your prisma/schema.prisma file
+
+model BlockMap {
+  id             String       @id @default(cuid())
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  internalName String
+  // Fields for map data, e.g., latitude, longitude, zoom, markers
+  latitude     Float
+  longitude    Float
+  zoom         Int      @default(12)
+  markers      Json? // Array of {lat, lng, title}
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BlockAccordion {
+  id             String       @id @default(cuid())
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  internalName String
+  items        AccordionItem[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model AccordionItem {
+  id               String         @id @default(cuid())
+  blockAccordionId String
+  block            BlockAccordion @relation(fields: [blockAccordionId], references: [id], onDelete: Cascade)
+
+  order   Int
+  title   Json
+  content Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blockAccordionId, order])
+}
+
+model BlockTabs {
+  id             String       @id @default(cuid())
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  internalName String
+  items        TabItem[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model TabItem {
+  id          String    @id @default(cuid())
+  blockTabsId String
+  block       BlockTabs @relation(fields: [blockTabsId], references: [id], onDelete: Cascade)
+
+  order   Int
+  title   Json
+  content Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blockTabsId, order])
+}
+
+model BlockDivider {
+  id             String       @id @default(cuid())
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  internalName String
+  // Fields for divider styling
+  height       Int?    @default(1)
+  color        String?
+  style        String? @default("solid") // e.g., solid, dashed, dotted
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Page {
+  id    String @id @default(cuid())
+  slug  String @unique
+  title String
+
+  status      PageStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  seo Json?
+
+  layout       String  @default("default")
+  isHomepage   Boolean @default(false)
+  parentPageId String?
+  parentPage   Page?   @relation("PageHierarchy", fields: [parentPageId], references: [id])
+  childPages   Page[]  @relation("PageHierarchy")
+
+  showInNav Boolean @default(true)
+  navOrder  Int     @default(0)
+  navTitle  Json?
+
+  blocks ContentBlock[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([status, publishedAt])
+}
+
+model ContentBlock {
+  id     String @id @default(cuid())
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  order     Int
+  blockType String // e.g., "HERO", "STATS"
+
+  isVisible     Boolean @default(true)
+  hideOnMobile  Boolean @default(false)
+  hideOnTablet  Boolean @default(false)
+  hideOnDesktop Boolean @default(false)
+
+  marginTop       String?
+  marginBottom    String?
+  paddingTop      String?
+  paddingBottom   String?
+  backgroundColor String?
+
+  blockHero             BlockHero?
+  blockFaq              BlockFaq?
+  blockCta              BlockCta?
+  blockTestimonials     BlockTestimonials?
+  blockStats            BlockStats?
+  blockGallery          BlockGallery?
+  blockTextContent      BlockTextContent?
+  blockProgramCards     BlockProgramCards?
+  blockSuccessStories   BlockSuccessStories?
+  blockDonationForm     BlockDonationForm?
+  blockVolunteerSignup  BlockVolunteerSignup?
+  blockNewsletterSignup BlockNewsletterSignup?
+  blockPartnerLogos     BlockPartnerLogos?
+  blockTeamGrid         BlockTeamGrid?
+  blockTimeline         BlockTimeline?
+  blockContactForm      BlockContactForm?
+  blockVideoEmbed       BlockVideoEmbed?
+  blockMap              BlockMap?
+  blockAccordion        BlockAccordion?
+  blockTabs             BlockTabs?
+  blockDivider          BlockDivider?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId, order])
+}
+
+model BlockHero {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json
+  subtitle    Json?
+  description Json?
+
+  backgroundImageUrl    String?
+  backgroundImageWidth  Int?
+  backgroundImageHeight Int?
+  backgroundVideoUrl    String?
+  overlayColor          String?
+  overlayOpacity        Float?  @default(0.5)
+
+  textAlign   TextAlign   @default(LEFT)
+  colorScheme ColorScheme @default(DEFAULT)
+  minHeight   String?     @default("500px")
+
+  ctaButtons HeroCtaButton[]
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HeroCtaButton {
+  id     String    @id @default(cuid())
+  heroId String
+  hero   BlockHero @relation(fields: [heroId], references: [id], onDelete: Cascade)
+
+  order        Int
+  text         Json
+  href         String
+  style        CtaStyle @default(PRIMARY)
+  size         CtaSize  @default(MEDIUM)
+  openInNewTab Boolean  @default(false)
+
+  @@index([heroId, order])
+}
+
+model BlockFaq {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json
+  description Json?
+
+  allowMultipleOpen Boolean @default(false)
+  defaultOpenFirst  Boolean @default(true)
+
+  items          FaqItem[]
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FaqItem {
+  id      String   @id @default(cuid())
+  blockId String
+  block   BlockFaq @relation(fields: [blockId], references: [id], onDelete: Cascade)
+
+  order    Int
+  question Json
+  answer   Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([blockId, order])
+}
+
+model BlockCta {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json
+  description Json?
+
+  primaryButtonText  Json
+  primaryButtonHref  String
+  primaryButtonStyle CtaStyle @default(PRIMARY)
+
+  secondaryButtonText  Json?
+  secondaryButtonHref  String?
+  secondaryButtonStyle CtaStyle @default(SECONDARY)
+
+  textAlign   TextAlign   @default(CENTER)
+  colorScheme ColorScheme @default(PRIMARY)
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockTestimonials {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json
+  description Json?
+
+  layout        String  @default("carousel")
+  itemsPerRow   Int     @default(3)
+  autoplay      Boolean @default(true)
+  autoplaySpeed Int     @default(5000)
+
+  testimonials   TestimonialItem[]
+  contentBlockId String            @unique
+  contentBlock   ContentBlock      @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TestimonialItem {
+  id                  String            @id @default(cuid())
+  blockTestimonialsId String
+  block               BlockTestimonials @relation(fields: [blockTestimonialsId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  quote          Json
+  authorName     String
+  authorRole     Json
+  authorImageUrl String?
+
+  successStoryId String?
+  successStory   SuccessStory? @relation(fields: [successStoryId], references: [id])
+
+  @@index([blockTestimonialsId, order])
+}
+
+model BlockStats {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  layout      String @default("row")
+  itemsPerRow Int    @default(4)
+
+  stats          StatItem[]
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StatItem {
+  id           String     @id @default(cuid())
+  blockStatsId String
+  block        BlockStats @relation(fields: [blockStatsId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  value       String
+  label       Json
+  description Json?
+
+  iconName String?
+  color    String?
+
+  @@index([blockStatsId, order])
+}
+
+model BlockGallery {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json?
+  description Json?
+
+  layout      GalleryLayout @default(GRID)
+  columns     Int           @default(3)
+  spacing     String        @default("1rem")
+  aspectRatio String?       @default("16/9")
+
+  images         GalleryImage[]
+  contentBlockId String         @unique
+  contentBlock   ContentBlock   @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id             String       @id @default(cuid())
+  blockGalleryId String
+  block          BlockGallery @relation(fields: [blockGalleryId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  imageUrl    String
+  imageWidth  Int?
+  imageHeight Int?
+  altText     Json
+  caption     Json?
+
+  @@index([blockGalleryId, order])
+}
+
+model BlockTextContent {
+  id           String @id @default(cuid())
+  internalName String
+
+  content Json
+
+  textAlign   TextAlign   @default(LEFT)
+  colorScheme ColorScheme @default(DEFAULT)
+  maxWidth    String?     @default("prose")
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockProgramCards {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  layout          String  @default("grid")
+  itemsPerRow     Int     @default(3)
+  showAllPrograms Boolean @default(true)
+
+  selectedPrograms ProgramCardItem[]
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProgramCardItem {
+  id                  String            @id @default(cuid())
+  blockProgramCardsId String
+  block               BlockProgramCards @relation(fields: [blockProgramCardsId], references: [id], onDelete: Cascade)
+
+  order     Int
+  programId String
+  program   Program @relation(fields: [programId], references: [id])
+
+  @@index([blockProgramCardsId, order])
+}
+
+model BlockSuccessStories {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  layout        String  @default("carousel")
+  maxItems      Int     @default(6)
+  autoplay      Boolean @default(true)
+  programFilter String?
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockDonationForm {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json
+  description Json?
+
+  showAmountButtons Boolean @default(true)
+  defaultAmounts    Json    @default("[25, 50, 100, 250]")
+  allowCustomAmount Boolean @default(true)
+  showRecurring     Boolean @default(true)
+
+  colorScheme ColorScheme @default(PRIMARY)
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockVolunteerSignup {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json
+  description Json?
+
+  showSkillsInput   Boolean @default(true)
+  showAvailability  Boolean @default(true)
+  requireBackground Boolean @default(false)
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockNewsletterSignup {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json
+  description Json?
+  buttonText  Json
+
+  showNameField Boolean @default(false)
+  placeholder   Json
+
+  layout      String      @default("horizontal")
+  colorScheme ColorScheme @default(DEFAULT)
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BlockPartnerLogos {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json?
+  description Json?
+
+  layout      String  @default("grid")
+  itemsPerRow Int     @default(5)
+  grayscale   Boolean @default(false)
+
+  partners       PartnerLogoItem[]
+  contentBlockId String            @unique
+  contentBlock   ContentBlock      @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PartnerLogoItem {
+  id                  String            @id @default(cuid())
+  blockPartnerLogosId String
+  block               BlockPartnerLogos @relation(fields: [blockPartnerLogosId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  name    String
+  logoUrl String
+  website String?
+
+  @@index([blockPartnerLogosId, order])
+}
+
+model BlockTeamGrid {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  itemsPerRow Int @default(3)
+
+  members        TeamMemberItem[]
+  contentBlockId String           @unique
+  contentBlock   ContentBlock     @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamMemberItem {
+  id              String        @id @default(cuid())
+  blockTeamGridId String
+  block           BlockTeamGrid @relation(fields: [blockTeamGridId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  name        String
+  role        Json
+  bio         Json?
+  imageUrl    String?
+  linkedinUrl String?
+  twitterUrl  String?
+  emailUrl    String?
+
+  @@index([blockTeamGridId, order])
+}
+
+model BlockTimeline {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  layout String @default("vertical")
+
+  events         TimelineEvent[]
+  contentBlockId String          @unique
+  contentBlock   ContentBlock    @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TimelineEvent {
+  id              String        @id @default(cuid())
+  blockTimelineId String
+  block           BlockTimeline @relation(fields: [blockTimelineId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  date        String
+  title       Json
+  description Json?
+  imageUrl    String?
+
+  @@index([blockTimelineId, order])
+}
+
+model BlockContactForm {
+  id           String @id @default(cuid())
+  internalName String
+
+  title       Json
+  description Json?
+
+  showNameField         Boolean @default(true)
+  showPhoneField        Boolean @default(false)
+  showSubjectField      Boolean @default(true)
+  showOrganizationField Boolean @default(false)
+
+  customFields ContactFormField[]
+
+  recipientEmail String
+  successMessage Json
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactFormField {
+  id                 String           @id @default(cuid())
+  blockContactFormId String
+  block              BlockContactForm @relation(fields: [blockContactFormId], references: [id], onDelete: Cascade)
+
+  order Int
+
+  fieldType   String
+  label       Json
+  placeholder Json?
+  required    Boolean @default(false)
+
+  options Json?
+
+  @@index([blockContactFormId, order])
+}
+
+model BlockVideoEmbed {
+  id           String @id @default(cuid())
+  internalName String
+
+  badge       Json?
+  title       Json?
+  description Json?
+
+  videoUrl     String
+  thumbnailUrl String?
+  aspectRatio  String  @default("16/9")
+  autoplay     Boolean @default(false)
+  showControls Boolean @default(true)
+
+  contentBlockId String       @unique
+  contentBlock   ContentBlock @relation(fields: [contentBlockId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PageTemplate {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  thumbnail   String?
+  category    String?
+
+  templateBlocks Json
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FormSubmission {
+  id       String @id @default(cuid())
+  formType String
+  pageSlug String
+
+  data      Json
+  ipAddress String?
+  userAgent String?
+
+  status     String  @default("new")
+  assignedTo String?
+  notes      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([formType, status])
+  @@index([pageSlug, createdAt])
+}
+
+model SeoConfig {
+  id       String @id @default(cuid())
+  pageSlug String @unique
+
+  metaTitle       Json
+  metaDescription Json
+  keywords        Json
+
+  ogTitle       Json?
+  ogDescription Json?
+  ogImageUrl    String?
+  ogType        String? @default("website")
+
+  twitterCard        String? @default("summary_large_image")
+  twitterTitle       Json?
+  twitterDescription Json?
+  twitterImageUrl    String?
+
+  canonicalUrl   String?
+  noindex        Boolean @default(false)
+  nofollow       Boolean @default(false)
+  structuredData Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Permission {
+  id       String @id @default(cuid())
+  resource String
+  action   String
+
+  roles RolePermission[]
+
+  @@unique([resource, action])
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  role         Role
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String?
+
+  access_token  String? @db.Text
+  refresh_token String? @db.Text
+  expires_at    Int?
+
+  @@unique([provider, providerAccountId])
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  username       String?   @unique
+  avatar         String?
+  hashedPassword String?
+  isVerified     Boolean   @default(false)
+  emailVerified  DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  roles               Role[]
+  mfaSecret           String?
+  mfaEnabled          Boolean @default(false)
+  impersonatingUserId String?
+
+  sessions    UserSession[]
+  onboarding  UserOnboarding?
+  preferences UserPreferences?
+  tokens      Token[]
+
+  profile            UserProfile?
+  createdPrograms    Program[]            @relation("CreatedBy")
+  updatedPrograms    Program[]            @relation("UpdatedBy")
+  newsArticles       NewsArticle[]
+  donations          Donation[]
+  createdEvents      Event[]              @relation("CreatedBy")
+  eventRegistrations EventRegistration[]
+  participantIn      ProgramParticipant[]
+
+  // Onboarding flags
+  onboardingStartedAt   DateTime?
+  onboardingCompletedAt DateTime?
+  onboardingSkipped     Boolean   @default(false)
+  onboardingVersion     String? // Track which template version they used
+
+  notificationPreferences UserNotificationPreferences?
+  notificationsSent       Notification[]               @relation("ActorNotifications")
+  notificationsReceived   Notification[]               @relation("RecipientNotifications")
+  pushSubscriptions       PushSubscription[]
+
+  language String?
+  timezone String?
+
+  programEnroled                ProgramEnrolment[]
+  devices                       PushDevice[]
+  auditLog                      AuditLog[]         @relation("AuditLogActor")
+  organizationId                String?
+  organization                  Organization[]
+  activityLog                   ActivityLog[]
+  successStories                SuccessStory[]     @relation("UserStories")
+  onboardingCompleted           Boolean            @default(false)
+  userNotificationPreferencesId String?
+
+  volunteerApplications VolunteerApplication[]
+  mentorshipRequests    MentorshipRequest[]    @relation("MentorshipRequestRequester")
+  mentorshipsMentoring  MentorshipRequest[]    @relation("MentorshipRequestMentor")
+  partnershipContacts   Partnership[]          @relation("PartnershipContacts")
+  managedPartnerships   Partnership[]          @relation("PartnershipManager")
+  documentUploads       Document[]             @relation("DocumentUploader")
+  impactReports         ImpactReport[]         @relation("ReportAuthor")
+  courseEnrollments     TrainingCourse[]       @relation("CourseEnrollments")
+  certificationsEarned  Certification[]
+  surveyResponses       SurveyResponse[]
+
+  failedLoginAttempts Int @default(0)
+
+  passwordHistory PasswordHistory[]
+  trustedDevices  TrustedDevice[]
+
+  isActive           Boolean   @default(true)
+  deactivatedAt      DateTime?
+  deactivationReason String?
+
+  lockedUntil                DateTime?
+  failedLoginAttemptsHistory FailedLoginAttempt? @relation(fields: [failedLoginAttemptId], references: [id])
+  failedLoginAttemptId       String?
+  userConsent                UserConsent?
+  userInvitations            UserInvitation[]    @relation("InvitedUsers")
+
+  @@index([email])
+  @@index([isVerified])
+  @@index([lockedUntil])
+}
+
+model UserSession {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionToken String @unique
+
+  ipAddress   String?
+  userAgent   String?
+  deviceInfo  Json?
+  location    String?
+  fingerprint String?
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([sessionToken])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation("AuditLogActor", fields: [actorId], references: [id])
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model UserOnboarding {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+  steps       Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  emailNotifications     Boolean @default(true)
+  smsNotifications       Boolean @default(false)
+  pushNotifications      Boolean @default(true)
+  marketingEmails        Boolean @default(false)
+  newsletterSubscription Boolean @default(true)
+  theme                  String  @default("system")
+  language               String  @default("en")
+  timezone               String  @default("UTC")
+  dateFormat             String  @default("MM/dd/yyyy")
+  timeFormat             String  @default("12h")
+  profileVisibility      String  @default("public")
+  showEmail              Boolean @default(false)
+  showPhoneNumber        Boolean @default(false)
+  showLocation           Boolean @default(true)
+  contentLanguage        Json    @default("[\"en\"]")
+  contentTopics          Json    @default("[]")
+  notificationSettings   Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([language])
+  @@index([profileVisibility])
+}
+
+model UserProfile {
+  id               String     @id @default(cuid())
+  userId           String     @unique
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName        String?
+  lastName         String?
+  organization     String?
+  position         String?
+  preferences      Json?
+  notifPreferences Json?
+  language         String     @default("en")
+  completedPct     Int        @default(0)
+  avatarUrl        String?
+  bio              String?    @db.VarChar(500)
+  phone            String?
+  city             String?
+  country          String?
+  birthDate        DateTime?
+  jobTitle         String?
+  company          String?
+  linkedin         String?
+  twitter          String?
+  interests        String[]
+  visibility       Visibility @default(PRIVATE)
+  notifPrefs       Json?
+  consent          Json?
+  dataRequests     Json[]
+  hoursVolunteered Int        @default(0)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  skills               UserSkill[]
+  industry             String?
+  isSearchable         Boolean               @default(true)
+  volunteerAssignments VolunteerAssignment[]
+
+  @@index([userId])
+  @@index([firstName, lastName])
+  @@index([city, country])
+  @@index([phone])
+}
+
+model UserConsent {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferences Json
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Skill {
+  id       String        @id @default(cuid())
+  key      String        @unique
+  name     Json
+  category SkillCategory
+
+  users     UserSkill[]
+  createdAt DateTime    @default(now())
+}
+
+model UserSkill {
+  id            String     @id @default(cuid())
+  userProfileId String
+  skillId       String
+  level         SkillLevel @default(INTERMEDIATE)
+
+  profile UserProfile @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+  skill   Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userProfileId, skillId])
+  @@index([userProfileId])
+  @@index([skillId])
+  @@index([level])
+}
+
+model PageContent {
+  id        String   @id @default(cuid())
+  pageSlug  String   @unique
+  content   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProgramCategory {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  name        Json
+  description Json
+  tagline     Json
+
+  heroImageUrl String?
+  iconName     String
+  color        String
+  displayOrder Int     @default(0)
+
+  programs  Program[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Program {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  categoryId String
+  category   ProgramCategory @relation(fields: [categoryId], references: [id])
+  status     ProgramStatus   @default(DRAFT)
+
+  name        Json
+  description Json
+  tagline     Json
+  content     Json
+
+  heroImageUrl      String?
+  thumbnailUrl      String?
+  videoThumbnailUrl String?
+  mediaGallery      String[]
+
+  tags                Json @default("[]")
+  metrics             Json @default("[]")
+  curriculum          Json @default("[]")
+  eligibilityCriteria Json @default("[]")
+  applicationSteps    Json @default("[]")
+
+  duration            String?
+  capacity            Int?
+  applicationDeadline DateTime?
+  startDate           DateTime?
+  endDate             DateTime?
+
+  seo Json?
+
+  requirements Json?
+  minAge       Int?
+  maxAge       Int?
+  requiredDocs String[]
+  cost         Decimal?
+  currency     String   @default("EUR")
+
+  rules          Json
+  steps          Json
+  requiredSkills String[] @default([])
+
+  grants    Grant[]
+  donations Donation[]
+  media     ContentMedia[]
+
+  createdByUserId String?
+  updatedByUserId String?
+  createdBy       User?                @relation("CreatedBy", fields: [createdByUserId], references: [id], onUpdate: NoAction, onDelete: SetNull)
+  updatedBy       User?                @relation("UpdatedBy", fields: [updatedByUserId], references: [id], onUpdate: NoAction, onDelete: SetNull)
+  participants    ProgramParticipant[]
+  enrolments      ProgramEnrolment[]
+  stories         SuccessStory[]       @relation("ProgramStories")
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  ProgramCardItem ProgramCardItem[]
+
+  volunteerOpportunities VolunteerOpportunity[]
+  trainingCourses        TrainingCourse[]
+  impactMetrics          ImpactMetric[]
+  fundraisingCampaigns   FundraisingCampaign[]
+  Event                  Event[]
+}
+
+model ProgramEnrolment {
+  id        String          @id @default(cuid())
+  programId String
+  userId    String
+  status    EnrolmentStatus @default(DRAFT)
+  step      Int             @default(0)
+  answers   Json
+  docs      Json
+  metadata  Json
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  program   Program         @relation(fields: [programId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
+
+  @@unique([programId, userId])
+}
+
+model ProgramParticipant {
+  id             String    @id @default(cuid())
+  programId      String
+  userId         String
+  status         String
+  enrollmentDate DateTime  @default(now())
+  completionDate DateTime?
+  outcomes       Json?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, userId])
+}
+
+model SuccessStory {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  quote      String  @db.Text
+  personName String
+  personRole String
+  imageUrl   String?
+
+  status      StoryStatus @default(REVIEW)
+  publishedAt DateTime?
+
+  authorId String?
+  author   User?   @relation("UserStories", fields: [authorId], references: [id], onDelete: SetNull)
+
+  programId String
+  program   Program @relation("ProgramStories", fields: [programId], references: [id], onDelete: Cascade)
+
+  title   String
+  excerpt Json
+  content String @db.Text
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  TestimonialItem TestimonialItem[]
+
+  @@index([authorId])
+  @@index([programId])
+}
+
+model NewsArticle {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title   Json
+  content Json
+  excerpt Json?
+
+  featuredImageUrl String?
+  status           ContentStatus @default(DRAFT)
+  publishedAt      DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  authorId String
+  author   User           @relation(fields: [authorId], references: [id])
+  media    ContentMedia[]
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  ARCHIVED
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  WAITLIST
+  CANCELLED
+}
+
+enum AttendanceStatus {
+  REGISTERED
+  ATTENDED
+  NO_SHOW
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       Json // {"en": "Title", "de": "Titel"}
+  description Json
+  eventType   String // workshop, fundraiser, community, board_meeting
+  startDate   DateTime
+  endDate     DateTime
+  location    Json? // Can be structured: {"name": "...", "address": "...", "url": "..."}
+  capacity    Int?
+  status      EventStatus @default(PUBLISHED)
+
+  // Relations
+  programId       String?
+  program         Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+  createdByUserId String
+  createdBy       User     @relation("CreatedBy", fields: [createdByUserId], references: [id])
+
+  // Flags & Special Properties
+  isVirtual            Boolean   @default(false)
+  meetingUrl           String?
+  registrationRequired Boolean   @default(true)
+  registrationDeadline DateTime?
+  requiresApproval     Boolean   @default(false)
+  tags                 String[]
+  imageUrl             String?
+
+  // Audience Control
+  corporateVolunteerFriendly Boolean @default(false)
+  alumniOnly                 Boolean @default(false)
+  majorDonorOnly             Boolean @default(false)
+
+  // Automatic Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relational Fields
+  registrations EventRegistration[]
+
+  @@index([startDate])
+  @@index([eventType])
+  @@index([programId])
+}
+
+model EventRegistration {
+  id      String @id @default(cuid())
+  eventId String
+  userId  String
+
+  status RegistrationStatus @default(CONFIRMED)
+
+  // Data collected at registration
+  registrationData Json? // { "specialRequirements": "...", "consentPhoto": true }
+
+  attendanceStatus AttendanceStatus @default(REGISTERED)
+  feedback         Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([status])
+}
+
+model ContentMedia {
+  id String @id @default(cuid())
+
+  altText Json?
+  caption Json?
+
+  newsArticleId String?
+  programId     String?
+  storyId       String?
+
+  mediaAssetId String
+  mediaAsset   MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  newsArticle NewsArticle? @relation(fields: [newsArticleId], references: [id], onDelete: Cascade)
+  program     Program?     @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  order Int @default(0)
+
+  @@index([newsArticleId])
+  @@index([programId])
+  @@index([storyId])
+}
+
+model Donation {
+  id            String    @id @default(cuid())
+  amount        Decimal   @db.Decimal(10, 2)
+  currency      String    @default("EUR")
+  frequency     String    @default("ONE_TIME")
+  paymentMethod String?
+  paymentId     String?   @unique
+  status        String
+  processedAt   DateTime?
+  anonymous     Boolean   @default(false)
+  donorId       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  donor     User?    @relation(fields: [donorId], references: [id])
+  programId String?
+  program   Program? @relation(fields: [programId], references: [id], onUpdate: NoAction, onDelete: SetNull)
+
+  campaignId String?
+  campaign   FundraisingCampaign? @relation(fields: [campaignId], references: [id])
+
+  donorMessage      String?
+  taxReceiptSent    Boolean   @default(false)
+  taxReceiptSentAt  DateTime?
+  isRecurring       Boolean   @default(false)
+  recurringInterval String? // monthly, quarterly, yearly
+  nextPaymentDate   DateTime?
+  metadata          Json? // For additional campaign-specific data
+}
+
+model Organization {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  grants      Grant[]
+  jobPostings JobPosting[]
+
+  description  String?
+  website      String?
+  industry     String?
+  size         String? // e.g., "1-10", "11-50", "51-200"
+  logoUrl      String?
+  contactEmail String?
+  contactPhone String?
+  address      Json?
+  partnerships Partnership[] @relation("OrganizationPartnerships")
+}
+
+model MediaAsset {
+  id          String    @id @default(cuid())
+  publicId    String    @unique
+  secureUrl   String
+  title       String
+  description String?
+  tags        String[]
+  assetType   AssetType @default(IMAGE)
+
+  createdAt   DateTime       @default(now())
+  contentList ContentMedia[]
+
+  fileSize   Int?
+  width      Int?
+  height     Int?
+  duration   Int? // For videos, in seconds
+  uploadedBy String?
+  version    Int       @default(1)
+  isApproved Boolean   @default(true)
+  approvedBy String?
+  approvedAt DateTime?
+}
+
+model ActivityLog {
+  id          String       @id @default(cuid())
+  type        ActivityType
+  title       String
+  description String?
+  linkHref    String?
+  actorId     String?
+  actor       User?        @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+
+  entityType String? // e.g., "program", "donation", "user"
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?
+}
+
+model FinancialBudget {
+  id           String   @id @default(cuid())
+  year         Int
+  quarter      Int
+  targetAmount Decimal
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  actualAmount Decimal   @default(0)
+  category     String? // e.g., "programs", "operations", "fundraising"
+  description  String?
+  isApproved   Boolean   @default(false)
+  approvedBy   String?
+  approvedAt   DateTime?
+
+  @@unique([year, quarter])
+}
+
+model Grant {
+  id             String      @id @default(cuid())
+  organizationId String
+  programId      String
+  name           String
+  grantAmount    Decimal
+  startDate      DateTime
+  endDate        DateTime
+  status         GrantStatus @default(ACTIVE)
+  goals          Json
+
+  organization Organization  @relation(fields: [organizationId], references: [id])
+  program      Program       @relation(fields: [programId], references: [id])
+  reports      GrantReport[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  grantReference    String? // External reference number
+  contactPerson     String?
+  contactEmail      String?
+  renewalEligible   Boolean   @default(false)
+  nextReviewDate    DateTime?
+  requiresMatching  Boolean   @default(false)
+  matchingAmount    Decimal?
+  restrictions      Json? // Spending restrictions
+  reportingSchedule Json? // When reports are due
+}
+
+model GrantReport {
+  id            String       @id @default(cuid())
+  grantId       String
+  title         String
+  dueDate       DateTime
+  submittedDate DateTime?
+  status        ReportStatus @default(PENDING)
+  documentUrl   String?
+
+  grant Grant @relation(fields: [grantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reportType  String    @default("progress") // progress, financial, final
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  feedback    String?
+  isApproved  Boolean   @default(false)
+  nextDueDate DateTime?
+}
+
+model JobPosting {
+  id            String  @id @default(cuid())
+  title         String
+  company       String
+  location      String?
+  link          String
+  alumniVisible Boolean @default(true)
+
+  postedByOrganizationId String?
+  postedByOrganization   Organization? @relation(fields: [postedByOrganizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  description         String?
+  requirements        String[]
+  salaryRange         String?
+  jobType             String? // full-time, part-time, contract, internship
+  isRemote            Boolean   @default(false)
+  applicationDeadline DateTime?
+  isActive            Boolean   @default(true)
+  tags                String[]
+  experienceLevel     String? // entry, mid, senior
+}
+
+model VolunteerApplication {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status VolunteerApplicationStatus @default(SUBMITTED)
+
+  // Application Data
+  motivation          String    @db.Text
+  availability        Json // { "weekdays": [], "weekends": true, "hoursPerWeek": 10 }
+  skills              String[]
+  experience          String?   @db.Text
+  backgroundCheck     Boolean   @default(false)
+  backgroundCheckDate DateTime?
+  references          Json? // Array of reference contacts
+  emergencyContact    Json?
+
+  // Review Process
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  reviewNotes   String?
+  interviewDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Link to volunteer opportunities they're interested in
+  interestedOpportunities VolunteerOpportunity[] @relation("VolunteerInterests")
+
+  @@index([userId])
+  @@index([status])
+}
+
+model VolunteerOpportunity {
+  id        String  @id @default(cuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  title             Json // Multi-language
+  description       Json
+  requirements      Json
+  timeCommitment    String // e.g., "2 hours/week", "One-time", "Flexible"
+  location          Json // { "type": "remote|in-person|hybrid", "address": "..." }
+  isActive          Boolean @default(true)
+  maxVolunteers     Int?
+  currentVolunteers Int     @default(0)
+
+  // Scheduling
+  startDate           DateTime?
+  endDate             DateTime?
+  applicationDeadline DateTime?
+
+  // Skills and matching
+  requiredSkills  String[]
+  preferredSkills String[]
+
+  // Categorization
+  tags        String[]
+  isUrgent    Boolean  @default(false)
+  isRecurring Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  interestedVolunteers VolunteerApplication[] @relation("VolunteerInterests")
+  assignments          VolunteerAssignment[]
+
+  @@index([programId])
+  @@index([isActive, startDate])
+}
+
+model VolunteerAssignment {
+  id                     String @id @default(cuid())
+  volunteerOpportunityId String
+  userProfileId          String
+
+  opportunity VolunteerOpportunity @relation(fields: [volunteerOpportunityId], references: [id], onDelete: Cascade)
+  volunteer   UserProfile          @relation(fields: [userProfileId], references: [id], onDelete: Cascade)
+
+  status          String    @default("active") // active, completed, cancelled
+  startDate       DateTime
+  endDate         DateTime?
+  hoursCommitted  Int       @default(0)
+  hoursCompleted  Int       @default(0)
+  feedback        String?
+  rating          Int? // 1-5 rating from program staff
+  completionNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([volunteerOpportunityId, userProfileId])
+  @@index([userProfileId])
+}
+
+// -----------------------------
+// MENTORSHIP SYSTEM
+// -----------------------------
+
+model MentorshipRequest {
+  id          String  @id @default(cuid())
+  requesterId String
+  mentorId    String?
+
+  requester User  @relation("MentorshipRequestRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  mentor    User? @relation("MentorshipRequestMentor", fields: [mentorId], references: [id], onDelete: SetNull)
+
+  status MentorshipStatus @default(REQUESTED)
+
+  // Request Details
+  programId   String? // Which program context
+  goals       Json // What the mentee wants to achieve
+  preferences Json // Meeting preferences, communication style, etc.
+  duration    String // e.g., "3 months", "6 months", "ongoing"
+
+  // Matching
+  matchedAt   DateTime?
+  matchedBy   String? // Admin who made the match
+  matchReason String? // Why this pairing was made
+
+  // Progress Tracking
+  sessionsCompleted Int       @default(0)
+  lastSessionDate   DateTime?
+  nextSessionDate   DateTime?
+  completionNotes   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions MentorshipSession[]
+
+  @@index([requesterId])
+  @@index([mentorId])
+  @@index([status])
+}
+
+model MentorshipSession {
+  id                  String            @id @default(cuid())
+  mentorshipRequestId String
+  mentorshipRequest   MentorshipRequest @relation(fields: [mentorshipRequestId], references: [id], onDelete: Cascade)
+
+  scheduledAt DateTime
+  duration    Int      @default(60) // minutes
+  format      String   @default("virtual") // virtual, in-person, phone
+  status      String   @default("scheduled") // scheduled, completed, cancelled, no-show
+
+  // Session Details
+  agenda      String?
+  notes       String? @db.Text
+  actionItems Json?
+
+  // Feedback
+  mentorRating   Int? // 1-5
+  menteeRating   Int? // 1-5
+  mentorFeedback String?
+  menteeFeedback String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mentorshipRequestId])
+}
+
+// -----------------------------
+// PARTNERSHIP MANAGEMENT SYSTEM
+// -----------------------------
+
+model Partnership {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  // Basic Info
+  name           Json // Multi-language partner name
+  organizationId String
+  organization   Organization @relation("OrganizationPartnerships", fields: [organizationId], references: [id])
+
+  type   PartnershipType
+  status PartnershipStatus @default(PROSPECT)
+
+  // Partnership Details
+  description Json
+  value       Decimal? // Annual partnership value
+  currency    String    @default("EUR")
+  startDate   DateTime?
+  endDate     DateTime?
+  renewalDate DateTime?
+
+  // Management
+  managerId String?
+  manager   User?   @relation("PartnershipManager", fields: [managerId], references: [id], onDelete: SetNull)
+
+  // Contact Information
+  primaryContacts User[] @relation("PartnershipContacts")
+
+  // Partnership Benefits & Deliverables
+  benefits     Json // What the partner gets
+  deliverables Json // What AWE provides
+  requirements Json // What AWE needs from partner
+
+  // Tracking
+  lastContact  DateTime?
+  nextFollowUp DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  reports      PartnershipReport[]
+  interactions PartnershipInteraction[]
+  renewals     PartnershipRenewal[]
+
+  @@index([status])
+  @@index([type])
+  @@index([renewalDate])
+}
+
+model PartnershipReport {
+  id            String      @id @default(cuid())
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+
+  reportPeriod String // e.g., "Q1 2024", "Annual 2023"
+  generatedAt  DateTime @default(now())
+  generatedBy  String?
+
+  // Impact Data
+  impactMetrics Json
+  outcomes      Json
+  feedback      Json
+
+  // Files
+  reportUrl       String? // PDF report link
+  presentationUrl String? // Presentation slides link
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnershipId])
+}
+
+model PartnershipInteraction {
+  id            String      @id @default(cuid())
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+
+  interactionType  String // meeting, email, call, event
+  subject          String
+  summary          String?   @db.Text
+  attendees        String[] // User IDs or external contacts
+  followUpRequired Boolean   @default(false)
+  followUpDate     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnershipId])
+  @@index([followUpRequired, followUpDate])
+}
+
+model PartnershipRenewal {
+  id            String      @id @default(cuid())
+  partnershipId String
+  partnership   Partnership @relation(fields: [partnershipId], references: [id], onDelete: Cascade)
+
+  previousEndDate DateTime
+  newEndDate      DateTime
+  renewalValue    Decimal?
+  renewalTerms    Json?
+
+  negotiatedBy String?
+  approvedBy   String?
+  approvedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnershipId])
+}
+
+// -----------------------------
+// DOCUMENT MANAGEMENT SYSTEM
+// -----------------------------
+
+model Document {
+  id    String       @id @default(cuid())
+  title Json // Multi-language titles
+  type  DocumentType
+
+  // File Information
+  fileUrl  String
+  fileName String
+  fileSize Int?
+  mimeType String?
+
+  // Metadata
+  description Json?
+  tags        String[]
+  version     String   @default("1.0")
+  language    String   @default("en")
+
+  // Access Control
+  isPublic       Boolean @default(false)
+  allowedRoles   Role[]
+  accessPassword String? // For password-protected docs
+
+  // Management
+  uploaderId String
+  uploader   User   @relation("DocumentUploader", fields: [uploaderId], references: [id])
+
+  // Approval Workflow
+  requiresApproval Boolean   @default(false)
+  isApproved       Boolean   @default(true)
+  approvedBy       String?
+  approvedAt       DateTime?
+
+  // Tracking
+  downloadCount Int       @default(0)
+  lastAccessed  DateTime?
+
+  // Relationships
+  categoryId String?
+  category   DocumentCategory? @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([isPublic, isApproved])
+  @@index([categoryId])
+}
+
+model DocumentCategory {
+  id          String  @id @default(cuid())
+  name        Json // Multi-language category names
+  description Json?
+  slug        String  @unique
+  parentId    String?
+
+  parent    DocumentCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children  DocumentCategory[] @relation("CategoryHierarchy")
+  documents Document[]
+
+  displayOrder Int     @default(0)
+  isActive     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+}
+
+// -----------------------------
+// IMPACT MEASUREMENT SYSTEM
+// -----------------------------
+
+model ImpactMetric {
+  id        String  @id @default(cuid())
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  name        Json // Multi-language metric names
+  description Json?
+  type        ImpactMetricType
+  unit        String // e.g., "people", "hours", "euros", "percent"
+
+  // Target vs Actual
+  targetValue  Decimal?
+  currentValue Decimal   @default(0)
+  targetDate   DateTime?
+
+  // Calculation Method
+  calculationMethod String? // How this metric is calculated
+  isAutoCalculated  Boolean   @default(false)
+  lastCalculated    DateTime?
+
+  // Display
+  displayOrder    Int     @default(0)
+  isPublic        Boolean @default(true)
+  showOnDashboard Boolean @default(false)
+
+  // Tracking
+  dataPoints ImpactDataPoint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([programId])
+  @@index([type])
+}
+
+model ImpactDataPoint {
+  id       String       @id @default(cuid())
+  metricId String
+  metric   ImpactMetric @relation(fields: [metricId], references: [id], onDelete: Cascade)
+
+  value      Decimal
+  recordedAt DateTime @default(now())
+  recordedBy String?
+  period     String? // e.g., "2024-Q1", "2024-03", "weekly"
+
+  // Context
+  notes      String?
+  source     String? // Where this data came from
+  isVerified Boolean   @default(false)
+  verifiedBy String?
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([metricId, recordedAt])
+}
+
+model ImpactReport {
+  id    String @id @default(cuid())
+  title Json // Multi-language titles
+  type  String // "monthly", "quarterly", "annual", "program-specific"
+
+  // Report Period
+  startDate DateTime
+  endDate   DateTime
+
+  // Content
+  summary    Json // Executive summary in multiple languages
+  keyMetrics Json // Highlighted metrics and achievements
+  challenges Json? // Challenges faced during the period
+  nextSteps  Json? // Plans for next period
+
+  // Files
+  reportUrl       String? // Link to full PDF report
+  presentationUrl String? // Link to presentation slides
+
+  // Management
+  authorId String
+  author   User   @relation("ReportAuthor", fields: [authorId], references: [id])
+
+  status      String    @default("draft") // draft, review, approved, published
+  publishedAt DateTime?
+
+  // Access
+  isPublic     Boolean @default(false)
+  allowedRoles Role[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, startDate, endDate])
+  @@index([status, publishedAt])
+}
+
+// -----------------------------
+// TRAINING & CERTIFICATION SYSTEM
+// -----------------------------
+
+model TrainingCourse {
+  id        String   @id @default(cuid())
+  programId String?
+  program   Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+
+  title       Json // Multi-language titles
+  description Json
+  curriculum  Json // Course outline and modules
+
+  // Course Details
+  duration      String? // e.g., "4 weeks", "2 days"
+  format        String  @default("online") // online, in-person, hybrid
+  difficulty    String  @default("beginner") // beginner, intermediate, advanced
+  prerequisites Json?
+
+  // Content
+  materialUrl String? // Link to course materials
+  videoUrl    String? // Link to video content
+
+  // Requirements
+  isRequired         Boolean @default(false) // For volunteers/staff
+  requiresCompletion Boolean @default(true)
+  passingScore       Int? // If there's an assessment
+
+  // Certification
+  providesCertificate Boolean @default(false)
+  certificateTemplate String?
+
+  // Management
+  instructorId    String?
+  maxParticipants Int?
+  isActive        Boolean @default(true)
+
+  // Scheduling
+  startDate            DateTime?
+  endDate              DateTime?
+  registrationDeadline DateTime?
+
+  enrollments    User[]          @relation("CourseEnrollments")
+  certifications Certification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([programId])
+  @@index([isActive, startDate])
+}
+
+model Certification {
+  id               String @id @default(cuid())
+  trainingCourseId String
+  userId           String
+
+  course TrainingCourse @relation(fields: [trainingCourseId], references: [id], onDelete: Cascade)
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Certification Details
+  certificateNumber String    @unique
+  issuedDate        DateTime  @default(now())
+  expiresAt         DateTime?
+  isActive          Boolean   @default(true)
+
+  // Assessment Results
+  finalScore     Int?
+  isPassed       Boolean @default(true)
+  assessmentData Json?
+
+  // Certificate File
+  certificateUrl String? // Link to generated certificate PDF
+
+  // Verification
+  verificationCode String  @unique
+  isVerified       Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([trainingCourseId, userId])
+  @@index([userId])
+  @@index([verificationCode])
+}
+
+// -----------------------------
+// COMMUNICATION TEMPLATES SYSTEM
+// -----------------------------
+
+model CommunicationTemplate {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  name        Json // Multi-language template names
+  type        CommunicationTemplateType
+  description Json?
+
+  // Template Content
+  subject  Json // For emails
+  bodyText Json // Plain text version
+  bodyHtml Json? // HTML version for emails
+
+  // Variables and Personalization
+  variables Json @default("[]") // Available template variables
+
+  // Settings
+  isActive Boolean @default(true)
+  isSystem Boolean @default(false) // System templates can't be deleted
+
+  // Usage Tracking
+  timesUsed Int       @default(0)
+  lastUsed  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+}
+
+// -----------------------------
+// NEWSLETTER & COMMUNICATION SYSTEM
+// -----------------------------
+
+model Newsletter {
+  id    String @id @default(cuid())
+  title Json // Multi-language titles
+
+  // Content
+  subject     Json
+  content     Json // Rich text content
+  previewText Json? // Email preview text
+
+  // Scheduling
+  status      String    @default("draft") // draft, scheduled, sent
+  scheduledAt DateTime?
+  sentAt      DateTime?
+
+  // Targeting
+  audienceType   String @default("all") // all, segments, custom
+  segmentRules   Json? // Audience segmentation rules
+  recipientCount Int    @default(0)
+
+  // Analytics
+  openRate        Decimal? @default(0)
+  clickRate       Decimal? @default(0)
+  unsubscribeRate Decimal? @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  campaigns NewsletterCampaign[]
+
+  @@index([status, scheduledAt])
+}
+
+model NewsletterCampaign {
+  id           String     @id @default(cuid())
+  newsletterId String
+  newsletter   Newsletter @relation(fields: [newsletterId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  // Campaign Settings
+  fromEmail    String
+  fromName     Json // Multi-language from names
+  replyToEmail String?
+
+  // Tracking
+  deliveredCount    Int @default(0)
+  openedCount       Int @default(0)
+  clickedCount      Int @default(0)
+  unsubscribedCount Int @default(0)
+
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([newsletterId])
+}
+
+model NewsletterSubscription {
+  id     String  @id @default(cuid())
+  email  String
+  userId String?
+
+  // Subscription Status
+  isActive       Boolean   @default(true)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  // Preferences
+  language  String   @default("en")
+  frequency String   @default("weekly") // daily, weekly, monthly
+  topics    String[] @default([])
+
+  // Tracking
+  confirmationToken String?   @unique
+  isConfirmed       Boolean   @default(false)
+  confirmedAt       DateTime?
+
+  // Engagement
+  lastOpenedAt DateTime?
+  totalOpens   Int       @default(0)
+  totalClicks  Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email])
+  @@index([isActive, language])
+  @@index([userId])
+}
+
+model NotificationTemplate {
+  type NotificationType @id
+
+  description String
+
+  isSystemManaged Boolean @default(true)
+
+  defaultChannelConfig Json
+
+  templates Json
+
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id String @id @default(cuid())
+
+  recipientId String
+  recipient   User   @relation("RecipientNotifications", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  actorId String?
+  actor   User?   @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: SetNull)
+
+  type     NotificationType
+  title    String
+  body     String?
+  linkHref String?
+  isRead   Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deliveries NotificationDelivery[]
+
+  @@unique([id, recipientId])
+  @@index([recipientId])
+}
+
+model UserNotificationPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  channelPreferences Json @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NotificationDelivery {
+  id             String      @id @default(cuid())
+  notificationId String
+  channel        Channel
+  status         NotifStatus @default(PENDING)
+  executedAt     DateTime?
+  failReason     String?     @db.Text
+  retryCount     Int         @default(0)
+  idempotencyKey String      @unique
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([status, retryCount])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Token {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type      TokenType
+  tokenHash String    @unique
+  expiresAt DateTime
+  used      Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+  @@index([expiresAt])
+  @@index([used])
+}
+
+model PushDevice {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  Platform
+  locale    String   @default("en")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AppSetting {
+  key   String @id
+  value Json
+  group String @default("GENERAL")
+
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OnboardingTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  roles       Role[]   @unique
+
+  path OnboardingPath[]
+
+  // Metadata
+  createdById String?
+  updatedById String?
+
+  @@index([isActive, isDefault])
+}
+
+model OnboardingPath {
+  id         String  @id @default(cuid())
+  templateId String
+  rank       Int
+  isRequired Boolean @default(true)
+
+  // Role-based visibility
+  roleWhitelist Role[]
+  roleBlacklist Role[]
+
+  template                   OnboardingTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  OnboardingStepDefinition   OnboardingStepDefinition? @relation(fields: [onboardingStepDefinitionId], references: [id])
+  onboardingStepDefinitionId String?
+
+  // Conditional logic
+  showIf Json? // Conditions for showing this step
+
+  // UI configuration
+  uiConfig Json? // Step-specific UI settings
+
+  stepId String
+  step   OnboardingStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, stepId])
+  @@index([templateId, rank])
+}
+
+model OnboardingStep {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  titleKey  String
+  descKey   String
+  component String
+  isActive  Boolean @default(true)
+
+  // Step configuration
+  validationSchema Json? // Zod schema as JSON
+  defaultData      Json? // Default field values
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  paths OnboardingPath[]
+}
+
+model OnboardingConfig {
+  id        String @id @default(cuid())
+  singleton String @unique @default("main")
+
+  // Feature flags
+  enabled                       Boolean @default(true)
+  allowSkip                     Boolean @default(false)
+  requireCompletionBeforeAccess Boolean @default(true)
+
+  // Invitation settings
+  invitationExpiryDays       Int     @default(7)
+  requireInvitationForAdmins Boolean @default(true)
+
+  // Template settings
+  autoAssignTemplateByRole Boolean @default(true)
+
+  // Notification settings
+  sendWelcomeEmail     Boolean @default(true)
+  sendReminderEmails   Boolean @default(true)
+  reminderIntervalDays Int     @default(3)
+
+  updatedAt DateTime @updatedAt
+  updatedBy String?
+}
+
+model UserInvitation {
+  id    String @id @default(cuid())
+  email String
+  token String @unique
+  roles Role[]
+
+  invitedById String
+  invitedBy   User   @relation("InvitedUsers", fields: [invitedById], references: [id])
+
+  status     InvitationStatus @default(PENDING)
+  expiresAt  DateTime
+  acceptedAt DateTime?
+
+  // Invitation context
+  organizationId String?
+  message        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email, status])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+model FeatureFlag {
+  key         String  @id
+  description String?
+  isActive    Boolean @default(false)
+
+  rolloutPercentage Int      @default(0)
+  allowedUserIds    String[]
+  allowedRoles      Role[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BrandConfig {
+  id        String   @id @default(cuid())
+  singleton String   @unique @default("main")
+  name      String   @default("AWE e.V.")
+  logoUrl   String?
+  colors    Json
+  contact   Json
+  social    Json
+  updatedAt DateTime @updatedAt
+}
+
+model OnboardingStepDefinition {
+  id            String @id @default(cuid())
+  componentName String @unique
+  name          Json
+  description   Json
+
+  templatePaths OnboardingPath[]
+}
+
+// -----------------------------
+// ANALYTICS & REPORTING SYSTEM  
+// -----------------------------
+
+model AnalyticsDashboard {
+  id          String @id @default(cuid())
+  name        Json // Multi-language dashboard names
+  description Json?
+
+  // Dashboard Configuration
+  layout    Json // Dashboard layout and widget configuration
+  isDefault Boolean @default(false)
+  isPublic  Boolean @default(false)
+
+  // Access Control
+  allowedRoles Role[]
+  createdBy    String
+
+  // Widgets
+  widgets DashboardWidget[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isDefault, isPublic])
+}
+
+model DashboardWidget {
+  id          String             @id @default(cuid())
+  dashboardId String
+  dashboard   AnalyticsDashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+
+  title Json // Multi-language widget titles
+  type  String // chart, metric, table, map, etc.
+
+  // Widget Configuration
+  config     Json // Widget-specific configuration
+  dataSource String // Which data source to use
+  query      Json? // Query parameters
+
+  // Layout
+  position Json // { x: 0, y: 0, width: 4, height: 2 }
+
+  // Display
+  isVisible   Boolean @default(true)
+  refreshRate Int? // Auto-refresh interval in seconds
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dashboardId])
+}
+
+// -----------------------------
+// FEEDBACK & SURVEY SYSTEM
+// -----------------------------
+
+model Survey {
+  id          String @id @default(cuid())
+  title       Json // Multi-language survey titles
+  description Json?
+
+  // Survey Configuration
+  type        String  @default("feedback") // feedback, satisfaction, evaluation, research
+  isActive    Boolean @default(true)
+  isAnonymous Boolean @default(false)
+
+  // Targeting
+  targetAudience String[] // User roles who can take this survey
+  programId      String? // If survey is program-specific
+
+  // Scheduling
+  startDate DateTime?
+  endDate   DateTime?
+
+  // Questions
+  questions SurveyQuestion[]
+  responses SurveyResponse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, type])
+  @@index([programId])
+}
+
+model SurveyQuestion {
+  id       String @id @default(cuid())
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  question   Json // Multi-language question text
+  type       String // text, textarea, radio, checkbox, rating, scale
+  options    Json? // For multiple choice questions
+  isRequired Boolean @default(false)
+  order      Int     @default(0)
+
+  // Conditional Logic
+  showIf Json? // Conditions for showing this question
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([surveyId, order])
+}
+
+model SurveyResponse {
+  id       String @id @default(cuid())
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Response Data
+  answers     Json // All question answers
+  isComplete  Boolean   @default(false)
+  completedAt DateTime?
+
+  // Metadata
+  ipAddress String?
+  userAgent String?
+  timeSpent Int? // Time spent in seconds
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([surveyId])
+  @@index([userId])
+}
+
+// -----------------------------
+// FUNDRAISING CAMPAIGNS SYSTEM
+// -----------------------------
+
+model FundraisingCampaign {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  title       Json // Multi-language campaign titles
+  description Json
+  story       Json? // Campaign story/narrative
+
+  // Campaign Details
+  type     String  @default("general") // general, emergency, program-specific, peer-to-peer
+  category String? // education, health, economic-empowerment, etc.
+
+  // Financial Goals
+  targetAmount    Decimal
+  currentAmount   Decimal  @default(0)
+  currency        String   @default("EUR")
+  minimumDonation Decimal? @default(5)
+
+  // Campaign Period
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+
+  // Visual Assets
+  heroImageUrl  String?
+  videoUrl      String?
+  galleryImages String[]
+
+  // Program Association
+  programId String?
+  program   Program? @relation(fields: [programId], references: [id], onDelete: SetNull)
+
+  // Campaign Management
+  managerId      String?
+  isPublic       Boolean @default(true)
+  allowRecurring Boolean @default(true)
+
+  // Tracking
+  donorCount Int @default(0)
+  shareCount Int @default(0)
+  viewCount  Int @default(0)
+
+  // Related campaigns (peer-to-peer)
+  parentCampaignId String?
+  parentCampaign   FundraisingCampaign?  @relation("CampaignHierarchy", fields: [parentCampaignId], references: [id])
+  childCampaigns   FundraisingCampaign[] @relation("CampaignHierarchy")
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Donation  Donation[]
+
+  @@index([isActive, startDate, endDate])
+  @@index([programId])
+  @@index([parentCampaignId])
+}
+
+model FailedLoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  createdAt DateTime @default(now())
+  User      User[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model PasswordHistory {
+  id             String   @id @default(cuid())
+  userId         String
+  hashedPassword String
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model TrustedDevice {
+  id          String    @id @default(cuid())
+  userId      String
+  fingerprint String
+  platform    String?
+  browser     String?
+  os          String?
+  lastIp      String?
+  lastUsedAt  DateTime  @default(now())
+  isTrusted   Boolean   @default(false)
+  trustedAt   DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([fingerprint])
+  @@index([isTrusted])
+  @@index([expiresAt])
+}

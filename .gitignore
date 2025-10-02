@@ -1,41 +1,48 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+/.pnpm-store
 
-# testing
-/coverage
-
-# next.js
+# Next.js build output
 /.next/
 /out/
 
-# production
+# Production build
 /build
 
-# misc
-.DS_Store
-*.pem
+# Local Environment Variables
+# NEVER commit your .env files. Create a .env.example instead.
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# debug
+# Prisma
+# Ignore the local SQLite database if you use one for quick dev
+/prisma/dev.db
+/prisma/dev.db-journal
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Docker
+# These are managed by docker-compose, not git
+postgres_data/
+redis_data/
+pgadmin_data/
 
-# vercel
-.vercel
+# IDE / Editor specific
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Mac / Windows specific
+.DS_Store
+Thumbs.db

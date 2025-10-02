@@ -1,0 +1,86 @@
+# .github/workflows/ci.yml
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  ci:
+    name: Run CI Checks
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: awe
+          POSTGRES_PASSWORD: awedatabase
+          POSTGRES_DB: awe_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint code
+        run: pnpm lint
+
+      - name: Check TypeScript compilation
+        run: pnpm tsc --noEmit
+      
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+        env:
+          DATABASE_URL: "postgresql://awe:awedatabase@localhost:5432/awe_ci_test?schema=public"
+
+      - name: Check for Prisma Migration Drift
+        id: migrate-diff
+        run: |
+          pnpm prisma migrate diff \
+            --from-migrations ./prisma/migrations \
+            --to-schema-datamodel ./prisma/schema.prisma \
+            --script --exit-code > migration-diff.txt
+        env:
+          DATABASE_URL: "postgresql://awe:awedatabase@localhost:5432/awe_ci_test?schema=public"
+          
+      - name: Comment on PR if drift detected
+        if: failure() && steps.migrate-diff.conclusion == 'failure'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const diff = fs.readFileSync('migration-diff.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚨 **Prisma Migration Drift Detected!** 🚨\n\nYour \`schema.prisma\` has changes that are not reflected in a migration file. Please run \`pnpm prisma migrate dev --name <your_migration_name>\` to create a new migration.\n\n<details><summary>Diff Output</summary>\n\n\`\`\`sql\n${diff}\n\`\`\`\n\n</details>`
+            });
+
+      - name: Build project
+        run: pnpm build
+        env:
+          DATABASE_URL: "postgresql://awe:awedatabase@localhost:5432/awe_ci_test?schema=public"

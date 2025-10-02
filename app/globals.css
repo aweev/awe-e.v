@@ -1,26 +1,361 @@
+/*
+ * ==================================================================
+ * AWE e.V. Global Stylesheet
+ * ==================================================================
+ * 
+ * Tailwind CSS v4 Engine
+ * This file serves as the single source of truth for the entire 
+ * application's design system, including colors, typography, spacing,
+ * and custom brand utilities.
+ *
+ */
+
+/* 
+ * STEP 1: Import Tailwind's core functionalities.
+ * This MUST be the very first statement in the file.
+ */
 @import "tailwindcss";
+@import "tw-animate-css";
+/*
+ ---break---
+ */
+@custom-variant dark (&:is(.dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 
+ * STEP 2: Define the Design System using @theme.
+ * This is the heart of the configuration. It defines all design tokens
+ * for both light and dark modes, which shadcn/ui and custom components will use.
+ */
+@theme {
+  /*
+   * Core Brand Color Palette
+   * Raw, named colors from the brand guidelines.
+  */
+  --color-brand-hopeful-clay: #D95D39;
+  --color-brand-radiant-gold: #F0A202;
+  --color-brand-canvas-white: #F9F8F6;
+  --color-brand-pure-white: #FFFFFF;
+  --color-brand-deep-charcoal: #1D2129;
+  --color-brand-medium-grey: #65676B;
+
+  /*
+   * Light Theme (Default)
+   * Semantic mapping of brand colors to shadcn/ui variables.
+  */
+  --color-background: var(--color-brand-canvas-white);
+  --color-foreground: var(--color-brand-deep-charcoal);
+  --color-card: var(--color-brand-pure-white);
+  --color-card-foreground: var(--color-brand-deep-charcoal);
+  --color-popover: var(--color-brand-pure-white);
+  --color-popover-foreground: var(--color-brand-deep-charcoal);
+  --color-primary: var(--color-brand-hopeful-clay);
+  --color-primary-foreground: var(--color-brand-pure-white);
+  --color-secondary: var(--color-brand-deep-charcoal);
+  --color-secondary-foreground: var(--color-brand-pure-white);
+  --color-muted: var(--color-brand-canvas-white);
+  --color-muted-foreground: var(--color-brand-medium-grey);
+  --color-accent: var(--color-brand-radiant-gold);
+  --color-accent-foreground: var(--color-brand-deep-charcoal);
+  --color-destructive: #dc2626;
+
+  --color-success: #16a34a;
+  /* A nice green */
+  --color-success-foreground: #052e16;
+  /* Dark green for text */
+  --color-warning: #f59e0b;
+  /* A nice amber/yellow */
+  --color-warning-foreground: #78350f;
+  /* Dark amber for text */
+
+  --color-border: #e5e7eb;
+  --color-input: #e5e7eb;
+  --color-ring: var(--color-brand-hopeful-clay);
+
+  /*
+   * Border Radius System
+   * Maps to the brand's Corner Radius scale.
+  */
+  --radius: 0.5rem;
+  /* 8px (default for core components) */
+  --radius-sm: 0.25rem;
+  /* 4px (small elements) */
+  --radius-lg: 0.75rem;
+  /* 12px (large containers) */
+
+  /*
+   * Font System
+  */
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Lora", serif;
+
+  /*
+   * Texture System Variables
+   * CSS custom properties for dynamic texture control
+  */
+  --texture-bogolan-opacity: 0.08;
+  --texture-paper-opacity: 0.12;
+  --texture-woven-opacity: 0.15;
+  --texture-blend-mode: multiply;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 
+ * STEP 2b: Define Dark Theme Variables
+ * Using ONLY class-based dark mode for next-themes compatibility
+ * REMOVED: @media (prefers-color-scheme: dark) to avoid conflicts
+ */
+.dark {
+  --color-background: #111317;
+  --color-foreground: #f8fafc;
+  --color-card: var(--color-brand-deep-charcoal);
+  --color-card-foreground: #f8fafc;
+  --color-popover: var(--color-brand-deep-charcoal);
+  --color-popover-foreground: #f8fafc;
+  --color-primary: var(--color-brand-hopeful-clay);
+  --color-primary-foreground: var(--color-brand-pure-white);
+  --color-secondary: #333740;
+  --color-secondary-foreground: #f8fafc;
+  --color-muted: #1e2126;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: var(--color-brand-radiant-gold);
+  --color-accent-foreground: var(--color-brand-deep-charcoal);
+  --color-destructive: #ef4444;
+  --color-border: #333740;
+  --color-input: #333740;
+  --color-ring: var(--color-brand-radiant-gold);
+
+  --color-success: #22c55e;
+  /* Brighter green for dark mode */
+  --color-success-foreground: #bbf7d0;
+  /* Light green text */
+  --color-warning: #facc15;
+  /* Brighter yellow for dark mode */
+  --color-warning-foreground: #fef3c7;
+  /* Light yellow text */
+
+  /*
+   * Dark mode texture adjustments
+  */
+  --texture-bogolan-opacity: 0.05;
+  --texture-paper-opacity: 0.08;
+  --texture-woven-opacity: 0.12;
+  --texture-blend-mode: screen;
+
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 
+ * STEP 3: Define Base Styles using @layer base.
+ * These are foundational styles applied to HTML elements.
+ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    /* Ensure smooth theme transitions */
+    transition: color-scheme 0.3s ease;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Smooth color transitions during theme changes */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif font-semibold tracking-tight;
+    /* Smooth color transitions for headings */
+    transition: color 0.3s ease;
+  }
+
+  /* Ensure proper color transitions for interactive elements */
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 
+ * STEP 4: Define Custom Utilities using @layer utilities.
+ * These are new, reusable classes we can apply in our JSX.
+ */
+@layer utilities {
+
+  /*
+   * A) Responsive Typography Utilities
+   * Implements the precise responsive font sizes from the brand document.
+  */
+  .text-heading1 {
+    @apply font-serif text-[36px] leading-[1.1] md:text-[56px];
+    transition: color 0.3s ease;
+  }
+
+  .text-heading2 {
+    @apply font-serif text-[28px] leading-[1.2] md:text-[40px];
+    transition: color 0.3s ease;
+  }
+
+  .text-heading3 {
+    @apply font-serif text-[24px] leading-[1.2] md:text-[32px];
+    transition: color 0.3s ease;
+  }
+
+  .text-heading4 {
+    @apply font-serif text-[20px] leading-[1.3] md:text-[24px];
+    transition: color 0.3s ease;
+  }
+
+  .text-body-large {
+    @apply font-sans text-[18px] leading-[1.6] md:text-[20px];
+    transition: color 0.3s ease;
+  }
+
+  .text-body-base {
+    @apply font-sans text-[16px] leading-[1.7] md:text-[18px];
+    transition: color 0.3s ease;
+  }
+
+  .text-small-meta {
+    @apply font-sans text-[14px] leading-[1.5] md:text-[16px];
+    transition: color 0.3s ease;
+  }
+
+  /*
+   * B) Texture & Pattern Utilities
+   * Adds warmth and authenticity to the interface. Assumes SVG files are in /public/textures/
+  */
+
+  /* Bogolan (African mud cloth) texture - Inline SVG fallback */
+  .bg-texture-bogolan {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3e%3cg fill='%23D95D39' fill-opacity='0.08'%3e%3cpath d='M30 0c16.569 0 30 13.431 30 30S46.569 60 30 60 0 46.569 0 30 13.431 0 30 0zm0 2C14.536 2 2 14.536 2 30s12.536 28 28 28 28-12.536 28-28S45.464 2 30 2z'/%3e%3cpath d='M15 15h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm10 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zM15 43h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm10 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3e%3c/g%3e%3c/svg%3e"),
+      url('/textures/bogolanfini-subtle.svg');
+    background-size: 60px 60px, cover;
+    background-repeat: repeat, no-repeat;
+    opacity: var(--texture-bogolan-opacity);
+    mix-blend-mode: var(--texture-blend-mode);
+    transition: opacity 0.3s ease, mix-blend-mode 0.3s ease;
+  }
+
+  /* Recycled paper texture - Inline SVG fallback */
+  .bg-texture-paper {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3e%3cg fill='%23F0A202' fill-opacity='0.04'%3e%3cpath d='M0 0h40v40H0z'/%3e%3cpath d='M10 5a5 5 0 110 10 5 5 0 010-10zm20 10a5 5 0 110 10 5 5 0 010-10zm-10 10a5 5 0 110 10 5 5 0 010-10z'/%3e%3c/g%3e%3c/svg%3e"),
+      url('/textures/recycled-paper.svg');
+    background-size: 40px 40px, cover;
+    background-repeat: repeat, no-repeat;
+    opacity: var(--texture-paper-opacity);
+    mix-blend-mode: var(--texture-blend-mode);
+    transition: opacity 0.3s ease, mix-blend-mode 0.3s ease;
+  }
+
+  .texture-overlay-woven {
+    position: relative;
+    z-index: 0;
+  }
+
+  .texture-overlay-woven::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3e%3cg fill='%2365676B' fill-opacity='0.06'%3e%3cpath d='M0 0h10v10H0zm10 10h10v10H10z'/%3e%3c/g%3e%3c/svg%3e"),
+      url('/textures/woven-overlay.svg');
+    background-size: 20px 20px, cover;
+    background-repeat: repeat, no-repeat;
+    pointer-events: none;
+    mix-blend-mode: var(--texture-blend-mode);
+    opacity: var(--texture-woven-opacity);
+    transition: mix-blend-mode 0.3s ease, opacity 0.3s ease;
+  }
+
+  /* Dark mode specific texture behavior */
+  .dark .texture-overlay-woven::after {
+    mix-blend-mode: screen;
+  }
+
+  /*
+   * C) Section Transition Utilities
+   * Creates soft, flowing transitions between sections.
+  */
+  .section-divider-top {
+    position: relative;
+  }
+
+  .section-divider-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: translateY(-100%);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    transition: background-image 0.3s ease;
+  }
+
+  .section-divider-top.divider-wave::before {
+    height: 48px;
+    /* Inlined and URL-encoded SVG for max performance */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3e%3cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' class='fill-current text-background'%3e%3c/path%3e%3c/svg%3e");
+  }
+
+  /*
+   * D) Theme-specific Utilities
+   * Additional utilities for better theme switching experience
+  */
+  .theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .theme-transition-fast {
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .theme-transition-slow {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+  }
+
+  /*
+   * E) Dark mode color scheme hint for browsers
+   */
+  .dark {
+    color-scheme: dark;
+  }
+
+  :root {
+    color-scheme: light;
+  }
+}
+
+@layer components {
+
+  /* Fuzzy highlight */
+  mark {
+    @apply rounded bg-accent/30 text-accent-foreground;
+  }
+
+  /* Command dialog dark */
+  .dark [cmdk-dialog] {
+    @apply border-border bg-background/90 backdrop-blur;
+  }
+
+  /* Footer kbd */
+  kbd {
+    @apply rounded border px-1 text-xs;
+  }
 }
