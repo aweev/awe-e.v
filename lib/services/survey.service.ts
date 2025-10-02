@@ -902,7 +902,6 @@ export const surveyService = {
                 return row;
             });
 
-            // Convert to CSV string
             const csvContent = [
                 headers.join(','),
                 ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
